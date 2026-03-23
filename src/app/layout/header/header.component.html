@@ -1,0 +1,22 @@
+<div class="bg-pink-700 text-white p-4">
+    <div class="flex justify-between">
+        <p class="text-2xl font-bold flex">Course Management System</p>
+
+        <!-- Navigation right side -->
+        <nav class="mt-2 flex justify-end">
+            @if(isLoggedIn$ | async) {
+            <p class="mr-4">Welcome, {{ (user$ | async)?.email }}</p>
+            <a routerLink="/home" routerLinkActive="underline font-medium"
+                class="mr-4 hover:underline hover:font-medium">Home</a>
+            <a routerLink="/courses" routerLinkActive="underline font-medium"
+                class="mr-4 hover:underline hover:font-medium">Courses</a>
+            <a routerLink="/logout" routerLinkActive="underline font-medium"
+                class="mr-4 hover:underline hover:font-medium" (click)="onLogout()">Logout</a>
+            } @else{
+            <a routerLink="/login" routerLinkActive="underline font-medium"
+                class="mr-4 hover:underline hover:font-medium">Login</a>
+            }
+        </nav>
+    </div>
+
+</div>

@@ -1,0 +1,62 @@
+<p class="text-xl font-bold text-center mt-10">
+    login here
+</p>
+
+<form [formGroup]="authForm" (ngSubmit)="onSubmit()"
+    class="w-full max-w-sm mx-auto mt-10 border border-gray-400 p-6 rounded-md shadow-lg">
+    <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+            Email
+        </label>
+        <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="email" type="email" placeholder="Email" formControlName="email">
+        <!-- @if(authForm.get('email')?.invalid && (authForm.get('email')?.dirty || authForm.get('email')?.touched) &&
+        authForm.get('email')?.errors?.['required']) {
+        <div class="text-red-500 text-xs mt-1">
+            Email is required.
+        </div>
+        }
+        @if(authForm.get('email')?.errors?.['required']) {
+        <div class="text-red-500 text-xs mt-1" *ngIf="email.errors?.['email']">
+            Please enter a valid email address.
+        </div>
+        } -->
+        @if (isFieldInvalid('email')) {
+        <div class="text-red-500 text-xs mt-1">
+            Email is Invalid.
+        </div>
+        }
+        @if (isFieldRequired('email')) {
+        <div class="text-red-500 text-xs mt-1">
+            Email is required.
+        </div>
+        }
+    </div>
+    <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+            Password
+        </label>
+        <input
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+            id="password" type="password" placeholder="******************" formControlName="password">
+        @if (isFieldInvalid('password')) {
+        <div class="text-red-500 text-xs mt-1">
+            Password is Invalid.
+        </div>
+        }
+        @if (isFieldRequired('password')) {
+        <div class="text-red-500 text-xs mt-1">
+            Password is required.
+        </div>
+        }
+    </div>
+    <!-- class="bg--500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" -->
+    <div class="flex items-center justify-between">
+        <button
+            class="flex items-center justify-center gap-6 py-2.5 px-5 me-2 mb-2 w-full text-sm font-medium focus:outline-none bg-white rounded-lg focus:z-10 dark:bg-pink-600 dark:text-white dark:hover:text-white dark:hover:bg-pink-700 cursor-pointer"
+            type="submit">
+            Sign In
+        </button>
+    </div>
+</form>
