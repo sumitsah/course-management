@@ -28,7 +28,7 @@ export class AuthFacade {
 
   login(credentials: UserAuth) {
     this.loadingSubject.next(true);
-    return this.authService.doLogin(credentials).pipe(
+    this.authService.doLogin(credentials).pipe(
       tap(() => {
         this.router.navigate(['/home']);
         this.toastService.show('Login successful!', 'success');
@@ -38,7 +38,7 @@ export class AuthFacade {
         return EMPTY;
       }),
       finalize(() => this.loadingSubject.next(false))
-    );
+    ).subscribe();
   }
 
   logout() {

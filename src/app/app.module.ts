@@ -7,6 +7,8 @@ import { AuthModule } from './features/auth/auth.module';
 import { HeaderComponent } from './layout/header/header.component';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { SharedUIModule } from './shared/ui/shared-ui.module';
+import { CoreModule } from './core/core.module';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -15,9 +17,10 @@ import { SharedUIModule } from './shared/ui/shared-ui.module';
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     AuthModule,
-    SharedUIModule
+    SharedUIModule,
   ],
   // providers: [ provideHttpClient(withInterceptorsFromDi())],
   providers: [provideHttpClient()],

@@ -32,7 +32,7 @@ export class ToastService {
         return this.toastsSubject.value;
     }
 
-    show(message: string, type: ToastType = 'info', duration = 5000) {
+    show(message: string, type: ToastType = 'info', duration = 3000) {
         const toast: Toast = {
             id: crypto.randomUUID(),
             message,

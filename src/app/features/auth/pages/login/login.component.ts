@@ -1,4 +1,4 @@
-import { Component, inject, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthFacade } from '../../auth-facade.service';
 
@@ -23,7 +23,7 @@ export class LoginComponent {
   onSubmit() {
     // console.log(this.authForm);
     // console.log(this.authForm.value);
-    this.authFacade.login(this.authForm.value).subscribe();
+    this.authFacade.login(this.authForm.value);
   }
 
   isFieldInvalid(controlName: string) {

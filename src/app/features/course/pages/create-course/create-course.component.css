@@ -1,0 +1,46 @@
+/* File Upload Field */
+.file-upload-field {
+    margin-top: 15px;
+    /* Adjust spacing for file input */
+}
+
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: #fbfbfb;
+}
+
+.file-input-wrapper input[type="file"] {
+    display: none;
+    /* Hide default file input */
+}
+
+.browse-button {
+    background-color: #e452cb;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease-in-out;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.browse-button:hover {
+    background-color: #d81bb9;
+}
+
+.file-name {
+    margin-left: 10px;
+    color: rgba(0, 0, 0, 0.6);
+    flex-grow: 1;
+    /* Allows text to take available space */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Truncate long file names */
+}

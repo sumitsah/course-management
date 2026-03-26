@@ -1,4 +1,6 @@
-<header></header>
-@if (loading$ | async) {<loading-spinner></loading-spinner>}
-<toast-bar></toast-bar>
-<router-outlet></router-outlet>
+<div class="bg-gray-200 min-h-screen">
+    <header></header>
+    @if (loading$ | async) {<loading-spinner></loading-spinner>}
+    <toast-bar></toast-bar>
+    <router-outlet></router-outlet>
+</div>

@@ -1,16 +1,30 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/pages/login/login.component';
 import { HomeComponent } from './features/auth/pages/home/home.component';
+import { ViewCourseComponent } from './features/course/pages/view-course/view-course.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'home', component: HomeComponent }
+  { path: 'home', component: HomeComponent },
+  // { path: 'courses', children: [{ path: 'view', component: ViewCourseComponent }] }
+  {
+    path: 'courses', loadChildren: () => import('./features/course/course.module').then(m => m.CourseModule)
+    // , data: { preload: true }
+  }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    preloadingStrategy: PreloadAllModules
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
+
+// export class CustomPreloadingStrategy implements PreloadingStrategy {
+//   preload(route: Route, fn: () => Observable<any>) {
+//     return route.data?.['preload'] ? fn() : of(null);
+//   }
+// }

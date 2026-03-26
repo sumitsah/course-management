@@ -2,20 +2,20 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { AuthResponse, User, UserAuth } from '../models/user';
-import { BehaviorSubject, map, Observable, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-  signinUrl: string = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseConfig.apiKey}`;
-  signupUrl: string = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseConfig.apiKey}`;
+  urlConfig = environment.firebaseConfig;
+  signinUrl: string = `${this.urlConfig.authUrl}signInWithPassword?key=${this.urlConfig.apiKey}`;
+  signupUrl: string = `${this.urlConfig.authUrl}signUp?key=${this.urlConfig.apiKey}`;
 
   private userBehaviorSubject: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
   user$ = this.userBehaviorSubject.asObservable();
 
-  isAuthenticated$ = this.user$.pipe(map(user => !!user?.token));
+  isAuthenticated$ = this.user$.pipe(map(user => !!user?.token), distinctUntilChanged());
   private logoutTimer: any;
 
   constructor(private http: HttpClient) { }

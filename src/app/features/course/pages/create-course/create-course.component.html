@@ -1,0 +1,100 @@
+<!-- Overlay -->
+<div *ngIf="isOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    Modal
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 relative">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Create Course</h2>
+
+            <!-- Close -->
+            <button (click)="close()" class="text-gray-500 hover:text-gray-800 cursor-pointer" title="Close">
+                ✕
+            </button>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="space-y-4">
+
+            <!-- Title -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Title</label>
+                <input type="text" formControlName="title"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-300 outline-none"
+                    placeholder="Enter course title" />
+                <form-validation [control]="controls.title"></form-validation>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Description</label>
+                <textarea formControlName="description" rows="3"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-500 outline-none"
+                    placeholder="Enter course description"></textarea>
+            </div>
+
+            <!-- Grid Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- Instructor -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Instructor</label>
+                    <input type="text" formControlName="instructor"
+                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-500 outline-none" />
+                </div>
+
+                <!-- Price -->
+                <div>
+                    <label class="block text-sm font-medium mb-1">Price</label>
+                    <input type="number" formControlName="price"
+                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-500 outline-none" />
+                    <form-validation [control]="controls.price"></form-validation>
+                </div>
+
+            </div>
+
+            <!-- Image URL -->
+
+            <!-- <div>
+                <label class="block text-sm font-medium mb-1">Course Image</label>
+                <input type="file" #courseImage (change)="onFileSelected(courseImage)" accept="image/*"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-500 outline-none" />
+                <span class="file-name" *ngIf="fileName">{{ fileName }}</span>
+            </div> -->
+
+            <div class="form-field file-upload-field">
+                <label for="image">Course Image</label>
+                <div class="file-input-wrapper">
+                    <input type="file" accept="image/*" #courseImage (change)="onFileSelected(courseImage)" id="image">
+                    <button type="button" class="browse-button" (click)="courseImage.click()">Browse File</button>
+                    <span class="file-name">No file chosen</span>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Tags (comma separated)</label>
+                <input type="text" formControlName="tags"
+                    class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-pink-500 outline-none"
+                    placeholder="Angular, Frontend" />
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" (click)="close()" class="px-4 py-2 rounded-lg border hover:bg-gray-100">
+                    Cancel
+                </button>
+
+                <button type="submit" [disabled]="courseForm.invalid"
+                    class="px-4 py-2 rounded-lg bg-pink-600 text-white hover:bg-pink-700 disabled:opacity-50">
+                    Create
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<loading-spinner *ngIf="loading"></loading-spinner>
+<toast-bar></toast-bar>
