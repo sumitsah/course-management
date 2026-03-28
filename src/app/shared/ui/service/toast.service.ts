@@ -29,6 +29,7 @@ export class ToastService {
     toasts$ = this.toastsSubject.asObservable();
 
     private get toasts() {
+        // console.log(this.toastsSubject.value)
         return this.toastsSubject.value;
     }
 

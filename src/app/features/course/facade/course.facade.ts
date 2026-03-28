@@ -2,8 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { CourseService } from '../services/course.service';
 import { BehaviorSubject, catchError, defer, finalize, map, Observable, of, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
 import { ToastService } from '../../../shared/ui/service/toast.service';
-import { AppError } from '../../../core/models/error';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'any'
@@ -21,10 +19,10 @@ export class CourseFacade {
         // defer(() => { now defer is not required for loading 
         this.loadingSubject.next(true); // start loading
         return this.courseService.doGetCourses().pipe(
-          catchError((err) => {
-            this.handleError(err);
-            return of([]); // Return a default value or rethrow the error as needed
-          }),
+          // catchError((err) => {
+          //   this.handleError(err);
+          //   return of([]); // Return a default value or rethrow the error as needed
+          // }),
           finalize(() => this.loadingSubject.next(false))
         );
         // })
@@ -59,10 +57,10 @@ export class CourseFacade {
     // this.loadingSubject.next(true);
     return this.courseService.doCreateCourse(courseData).pipe(
       tap(() => this.toastService.show('Course created successfully!', 'success')),
-      catchError((err) => {
-        this.handleError(err);
-        return of(null); // Return a default value or rethrow the error as needed
-      }),
+      // catchError((err) => {
+      //   this.handleError(err);
+      //   return of(null); // Return a default value or rethrow the error as needed
+      // }),
       // finalize(() => this.loadingSubject.next(false))
     );
   }
@@ -92,19 +90,19 @@ export class CourseFacade {
       );
     } */
 
-  handleError(err: HttpErrorResponse) {
-    console.error('An error occurred:', err);
-    let error: AppError = {
-      message: 'An error occurred!',
-      status: `${err.status}`
-    }
-    switch (err.error.error) {
-      case 'Permission denied':
-        error.message = err.error.error;
-        break;
-    }
-    this.toastService.show(error.message, 'error');
-  }
+  // handleError(err: HttpErrorResponse) {
+  //   console.error('An error occurred:', err);
+  //   let error: AppError = {
+  //     message: 'An error occurred!',
+  //     status: `${err.status}`
+  //   }
+  //   switch (err.error.error) {
+  //     case 'Permission denied':
+  //       error.message = err.error.error;
+  //       break;
+  //   }
+  //   this.toastService.show(error.message, 'error');
+  // }
 }
 
 

@@ -7,9 +7,8 @@ import { map } from 'rxjs';
   providedIn: 'any'
 })
 export class CourseService {
-  localStorage = JSON.parse(localStorage.getItem('user') as string);
-
-  courseApiUrl = environment.firebaseConfig.databaseURL + `/courses.json?auth=${this.localStorage._idToken}`;
+  courseApiUrl = environment.firebaseConfig.databaseURL + '/courses.json'
+  // ?auth=${this.localStorage._idToken}`;
   uploadImageUrl = environment.cloudinary.baseUrl + environment.cloudinary.cloudName + '/upload';
 
   constructor(private http: HttpClient) { }

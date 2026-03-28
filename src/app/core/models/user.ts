@@ -18,8 +18,9 @@ export class User {
     constructor(
         public email: string,
         public localId: string,
-        private _idToken: string,
-        private _expirationDate: Date
+        private _idToken: string | null,
+        private _expirationDate: Date,
+        private _refreshToken: string
     ) {
 
     }
@@ -32,5 +33,9 @@ export class User {
 
     get expirationDate() {
         return this._expirationDate;
+    }
+
+    get refreshToken() {
+        return this._refreshToken;
     }
 }

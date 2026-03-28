@@ -5,6 +5,7 @@
         <!-- Navigation right side -->
         <nav class="mt-2 flex justify-end">
             @if(isLoggedIn$ | async) {
+            <!-- @if(user$ | async) { -->
             <p class="mr-4 font-medium">Welcome, {{ (user$ | async)?.email }}!</p>
             <a routerLink="/home" routerLinkActive="underline font-medium"
                 class="mr-4 hover:underline hover:font-medium">Home</a>

@@ -1,6 +1,7 @@
 export const environment = {
     firebaseConfig: {
         authUrl: "https://identitytoolkit.googleapis.com/v1/accounts:",
+        refreshTokenUrl: `https://securetoken.googleapis.com/v1/token?key=`,
         apiKey: "AIzaSyDMw_-8p3AwK7nmdmaM8QObetdxWyBhXsQ",
         authDomain: "angularhttpclient-91f5f.firebaseapp.com",
         databaseURL: "https://angularhttpclient-91f5f-default-rtdb.firebaseio.com",
