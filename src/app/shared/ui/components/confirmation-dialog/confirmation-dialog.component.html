@@ -1,0 +1,38 @@
+<!-- confirm-dialog.component.html -->
+
+<div class="fixed inset-0 z-50 flex items-center justify-center" (click)="onBackdropClick($event)">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+        [class.opacity-100]="isOpen" [class.opacity-0]="!isOpen"></div>
+
+    <!-- Dialog -->
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform transition-all duration-300"
+        [class.opacity-100]="isOpen" [class.scale-100]="isOpen" [class.opacity-0]="!isOpen" [class.scale-95]="!isOpen">
+        <!-- Header -->
+        <div class="px-6 pt-6">
+            <h2 class="text-lg font-semibold text-gray-800">
+                {{ title }}
+            </h2>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-4">
+            <p class="text-sm text-gray-600">
+                {{ message }}
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 pb-6 flex justify-end gap-3">
+            <button (click)="onCancel()"
+                class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+                {{ cancelText }}
+            </button>
+
+            <button (click)="onConfirm()"
+                class="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
+                {{ confirmText }}
+            </button>
+        </div>
+    </div>
+</div>

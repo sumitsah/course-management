@@ -1,6 +1,11 @@
-<div class="bg-gray-200 min-h-screen">
+<div class="bg-gray-200 min-h-screen pb-8">
     <header></header>
     @if (loading$ | async) {<loading-spinner></loading-spinner>}
     <toast-bar></toast-bar>
+    <confirmation-dialog *ngIf="dialogConfirmService.confirmState$ | async as config" [title]="config.title!"
+        [message]="config.message!" [confirmText]="config.confirmText || 'Yes'"
+        [cancelText]="config.cancelText || 'Cancel'" (confirm)="dialogConfirmService.confirmYes()"
+        (cancel)="dialogConfirmService.confirmNo()">
+        ></confirmation-dialog>
     <router-outlet></router-outlet>
 </div>

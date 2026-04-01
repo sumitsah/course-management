@@ -1,6 +1,6 @@
 <div class="mt-2 flex justify-end">
     <button class="px-4 py-2 rounded-lg bg-pink-600 text-white hover:bg-pink-700 disabled:opacity-50"
-        (click)="viewForm()"> Create Course
+        (click)="viewForm('create')"> Create Course
     </button>
 </div>
 
@@ -52,20 +52,25 @@
                 <div class="relative">
                     <div class="absolute top-2 right-2 flex gap-2">
 
-                        <!-- Create -->
-                        <button (click)="viewForm()"
-                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-green-100 transition"
+                        <!-- Edit -->
+                        <button (click)="viewForm('edit', course)"
+                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-green-100 transition h-8 w-8 hover:scale-110 transition"
                             title="Update Course">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none"
+                            <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
+                            </svg> -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5h2m-1-1v2m-6 12h12M4 20l4-1 9-9a2.828 2.828 0 10-4-4l-9 9-1 4z" />
                             </svg>
                         </button>
 
                         <!-- View -->
-                        <button (click)="viewCourse(course.id)"
-                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-blue-100 transition"
+                        <button (click)="viewCourse(course)"
+                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-blue-100 transition hover:scale-110 transition"
                             title="View">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -79,8 +84,8 @@
                         </button>
 
                         <!-- Delete -->
-                        <button (click)="deleteCourse(course.id)"
-                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-red-100 transition"
+                        <button (click)="deleteCourse(course)"
+                            class="bg-white/90 p-2 rounded-full shadow shadow-gray-500 hover:bg-red-100 transition hover:scale-110 transition"
                             title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +103,7 @@
 
 </div>
 <!-- <modal-container></modal-container> -->
-<create-course></create-course>
+<course-form [data]="selectedCourse" [mode]="mode"></course-form>
 @if (loading$ | async) {<loading-spinner></loading-spinner>}
 
 <!-- <create-course *ngIf="showForm" (closeForm)="showForm = $event"></create-course> -->

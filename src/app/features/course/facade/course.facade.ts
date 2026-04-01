@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { CourseService } from '../services/course.service';
 import { BehaviorSubject, catchError, defer, finalize, map, Observable, of, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
 import { ToastService } from '../../../shared/ui/service/toast.service';
+import { Course } from '../../../core/models/course';
 
 @Injectable({
   providedIn: 'any'
@@ -63,6 +64,24 @@ export class CourseFacade {
       // }),
       // finalize(() => this.loadingSubject.next(false))
     );
+  }
+
+  deleteCourse(id: number) {
+    this.loadingSubject.next(true);
+    return this.courseService.doDeleteCourse(id).pipe(
+      tap(() => this.toastService.show('Course Deleted Successfully!', 'success', 2000)),
+      finalize(() => this.loadingSubject.next(false))
+    )
+  }
+
+  updateCourse(course: Course) {
+    return this.courseService.doUpdateCourse(course).pipe(
+      tap(() => this.toastService.show('Course Updated Successfully!', 'success', 2000))
+    )
+  }
+
+  getCourseById(id: any) {
+    return this.courseService.doGetCourseById(id);
   }
 
   refreshCourses() {

@@ -1,38 +1,53 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnDestroy, OnInit, SimpleChange, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalFacade } from '../../../../core/services/modal-facade.service';
 import { CourseFacade } from '../../facade/course.facade';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, Subject, switchMap, takeUntil } from 'rxjs';
+import { Course } from '../../../../core/models/course';
 
 @Component({
-  selector: 'create-course',
+  selector: 'course-form',
   standalone: false,
-  templateUrl: './create-course.component.html',
-  styleUrl: './create-course.component.css'
+  templateUrl: './course-form.component.html',
+  styleUrl: './course-form.component.css'
 })
-export class CreateCourseComponent implements OnInit, AfterViewInit {
-  // @Output() closeForm: EventEmitter<boolean> = new EventEmitter<boolean>();
+export class CourseFormComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() data: Course | null = null;
+  @Input() mode: 'create' | 'edit' = 'create';
 
   isOpen = false;
   courseForm!: FormGroup;
   selectedFile!: File;
   loading = false;
   controls!: any;
+  private destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder,
     private modalFacade: ModalFacade,
     private courseFacade: CourseFacade,
-    //  "firebase": "^12.11.0",
     // @Inject(MODAL_DATA) public data: any,
   ) {
   }
 
+  // this.loading$ = this.courseFacade.loading$;
   ngOnInit() {
     this.createCourseForm();
-    // this.loading$ = this.courseFacade.loading$;
 
-    this.modalFacade.closeModalObs$.subscribe(() => this.isOpen = false);
-    this.modalFacade.openModalObs$.subscribe(() => this.isOpen = true);
+    this.modalFacade.closeModalObs$.
+      pipe(takeUntil(this.destroy$)).
+      subscribe(() => this.isOpen = false);
+
+    this.modalFacade.openModalObs$.
+      pipe(takeUntil(this.destroy$)).
+      subscribe(() => this.isOpen = true);
+  }
+
+  ngOnChanges() {
+    if (this.mode === 'edit' && this.data) {
+      this.courseForm.patchValue(this.data);
+    } else {
+      this.courseForm?.reset();
+    }
   }
 
   ngAfterViewInit() {
@@ -42,6 +57,17 @@ export class CreateCourseComponent implements OnInit, AfterViewInit {
       price: this.courseForm.get('price'),
     };
   }
+
+
+  // editCourseForm() {
+  //   this.courseForm.patchValue({
+  //     title: this.courseForm.title,
+  //     description: this.courseForm.description,
+  //     price: this.courseForm.price,
+  //     tags: 
+  //   });
+  // }
+
   createCourseForm() {
     this.courseForm = this.fb.group({
       title: ['', Validators.required],
@@ -55,37 +81,42 @@ export class CreateCourseComponent implements OnInit, AfterViewInit {
 
   // this.courseForm.patchValue({ image: 'https://res.cloudinary.com/dl6dnknto/image/upload/v1774460071/hrcyx7s94yxyjhylyljo.jpg' });
   onSubmit() {
-    if (this.courseForm.valid) {
-      this.loading = true;
-      this.courseFacade.uploadFile(this.selectedFile).pipe(
-        switchMap((res: any) => {
-          // console.log(res);
-          let formData = {
-            ...this.courseForm.value,
-            image: res.secure_url
+    if (this.mode === 'create') {
+      if (this.courseForm.valid) {
+        this.loading = true;
+        this.courseFacade.uploadFile(this.selectedFile).pipe(
+          switchMap((res: any) => {
+            let formData = {
+              ...this.courseForm.value,
+              image: res.secure_url
+            }
+            return this.courseFacade.createCourse(formData)
+          }),
+          finalize(() => this.loading = false)
+        ).subscribe({
+          next: () => {
+            this.close();
+            this.courseFacade.refreshCourses();
           }
-          return this.courseFacade.createCourse(formData)
-        }),
-        finalize(() => this.loading = false)
-      ).subscribe({
-        next: () => {
-          this.close();
-          this.courseFacade.refreshCourses();
-          // this.courses$ = this.courseFacade.getCourses();
-        }
-      });
+        });
 
-      // .subscribe((res: any) => {
-      //   this.courseForm.patchValue({ image: res.secure_url });
-      // })
-      // const formData = new FormData();
-      // Object.entries(this.courseForm.value).forEach(([key, value]: [string, any]) => {
-      //   formData.append(key, value);
-      // });
-      // console.log(this.courseForm.value);
-      // this.courseFacade.createCourse(this.courseForm.value).subscribe((_) => this.close());
+        // .subscribe((res: any) => {
+        //   this.courseForm.patchValue({ image: res.secure_url });
+        // })
+        // const formData = new FormData();
+        // Object.entries(this.courseForm.value).forEach(([key, value]: [string, any]) => {
+        //   formData.append(key, value);
+        // });
+        // console.log(this.courseForm.value);
+        // this.courseFacade.createCourse(this.courseForm.value).subscribe((_) => this.close());
+      } else {
+        console.log('Form is invalid');
+      }
     } else {
-      console.log('Form is invalid');
+      this.loading = true;
+      this.courseFacade.updateCourse({ ...this.courseForm.value, id: this.data?.id }).pipe(
+        finalize(() => this.loading = false)
+      ).subscribe(() => { this.close(); this.courseFacade.refreshCourses() })
     }
   }
 
@@ -103,6 +134,11 @@ export class CreateCourseComponent implements OnInit, AfterViewInit {
     this.modalFacade.closeModal();
     // this.modalFacade.close({ success: true, data: this.courseForm.value });
     // this.modalFacade.close({ success: true });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 }
 

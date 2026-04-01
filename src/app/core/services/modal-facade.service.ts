@@ -37,8 +37,8 @@ export class ModalFacade {
     private closeModalSubject = new Subject<void>();
     closeModalObs$ = this.closeModalSubject.asObservable();
 
-    openModal() {
-        this.openModalSubject.next();
+    openModal(data: any) {
+        this.openModalSubject.next(data);
     }
 
     closeModal() {

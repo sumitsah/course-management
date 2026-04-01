@@ -15,14 +15,12 @@ export class LoginComponent {
 
   ngOnInit() {
     this.authForm = new FormGroup({
-      email: new FormControl(null, [Validators.required, Validators.email]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(6)])
+      email: new FormControl('sumit@gmail.com', [Validators.required, Validators.email]),
+      password: new FormControl('sumit@123', [Validators.required, Validators.minLength(6)])
     });
   }
 
   onSubmit() {
-    // console.log(this.authForm);
-    // console.log(this.authForm.value);
     this.authFacade.login(this.authForm.value);
   }
 

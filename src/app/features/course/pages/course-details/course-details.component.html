@@ -1,0 +1,80 @@
+<!-- view-course.component.html -->
+<div class="flex items-center gap-3 mb-4 max-w-4xl mx-auto">
+  <a routerLink="/courses" class="text-gray-600 hover:text-black transition cursor-pointer">
+    ←
+  </a>
+
+  <span class="text-sm text-gray-500 font-bold">
+    Back to Courses
+  </span>
+</div>
+<div *ngIf="course$ | async as course" class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden mt-4">
+
+  <!-- Image -->
+  <div class="w-full h-64 bg-gray-100">
+    <img [src]="course.image" alt="course image" class="w-full h-full object-cover" />
+  </div>
+
+  <!-- Content -->
+  <div class="p-6 space-y-5">
+
+    <!-- Title + Instructor -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">
+        {{ course.title }}
+      </h1>
+      <p class="text-sm text-gray-500 mt-1">
+        By {{ course.instructor }}
+      </p>
+    </div>
+
+    <!-- Rating + Reviews -->
+    <div class="flex items-center gap-3" *ngIf="course.rating">
+      <div class="flex items-center text-yellow-500">
+        ⭐ {{ course?.rating }}
+      </div>
+      <span class="text-sm text-gray-500" *ngIf="course.reviews">
+        ({{ course?.reviews }} reviews)
+      </span>
+    </div>
+
+    <!-- Price -->
+    <div>
+      <span class="text-2xl font-semibold text-green-600">
+        ₹{{ course?.price }}
+      </span>
+    </div>
+
+    <!-- Tags -->
+    <div class="flex flex-wrap gap-2">
+      <span *ngFor="let tag of course.tags.split(',')" class="px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
+        {{ tag }}
+      </span>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-2">
+        Description
+      </h2>
+      <p class="text-gray-600 text-sm leading-relaxed">
+        {{ course?.description }}
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <!-- <div class="flex justify-end gap-3 pt-4 border-t">
+      <button class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+        (click)="onClose()">
+        Close
+      </button>
+
+      <button class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition" (click)="onEdit(course)">
+        Edit
+      </button>
+    </div> -->
+
+  </div>
+</div>
+
+<loading-spinner *ngIf="loading"></loading-spinner>

@@ -37,8 +37,8 @@ export class AuthService {
   doLogin(credentials: UserAuth): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(this.signinUrl, { ...credentials, returnSecureToken: true }).pipe(
       tap((res: AuthResponse) => {
-        // const expirationDate = new Date(new Date().getTime() + +res.expiresIn * 1000);
-        const expirationDate = new Date(new Date().getTime() + 120 * 1000);
+        const expirationDate = new Date(new Date().getTime() + +res.expiresIn * 1000);
+        // const expirationDate = new Date(new Date().getTime() + 120 * 1000);
         const user = new User(res.email, res.localId, res.idToken, expirationDate, res.refreshToken);
         this.setUser(user);
         this.doAutoRefreshToken(+res.expiresIn);

@@ -5,7 +5,7 @@
 
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold">Create Course</h2>
+            <h2 class="text-xl font-semibold">{{ this.mode === 'create' ? 'Create Course' : 'Edit Course' }}</h2>
 
             <!-- Close -->
             <button (click)="close()" class="text-gray-500 hover:text-gray-800 cursor-pointer" title="Close">
@@ -87,7 +87,12 @@
 
                 <button type="submit" [disabled]="courseForm.invalid"
                     class="px-4 py-2 rounded-lg bg-pink-600 text-white hover:bg-pink-700 disabled:opacity-50">
-                    Create
+                    @if(this.mode === 'create'){
+                    {{'Create Course'}}
+                    }@else{
+                    {{'Edit Course'}}
+                    }
+
                 </button>
             </div>
 
