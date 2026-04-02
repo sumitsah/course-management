@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { AuthResponse, User, UserAuth } from '../models/user';
-import { BehaviorSubject, distinctUntilChanged, map, Observable, Subject, Subscription, switchMap, tap, timer } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map, Observable, shareReplay, Subject, Subscription, switchMap, tap, timer } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class AuthService {
   isRefreshing = false;
   refreshSubject = new BehaviorSubject<string | null>(null);
 
-  isAuthenticated$ = this.user$.pipe(map(user => !!user?.token), distinctUntilChanged());
+  isAuthenticated$ = this.user$.pipe(map(user => !!user?.token), distinctUntilChanged(), shareReplay(1));
   // isAuthenticated$ = this.user$.pipe(map(user => !!user?.token));
   private logoutTimer: any;
 

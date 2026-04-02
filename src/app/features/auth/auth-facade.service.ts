@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { BehaviorSubject, catchError, EMPTY, finalize, tap } from 'rxjs';
 import { UserAuth } from '../../core/models/user';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../shared/ui/service/toast.service';
 
 @Injectable({
@@ -10,6 +10,7 @@ import { ToastService } from '../../shared/ui/service/toast.service';
 })
 export class AuthFacade {
   router = inject(Router);
+  activatedRouter = inject(ActivatedRoute);
   authService = inject(AuthService);
   toastService = inject(ToastService);
 
@@ -28,7 +29,9 @@ export class AuthFacade {
     this.loadingSubject.next(true);
     this.authService.doLogin(credentials).pipe(
       tap(() => {
-        this.router.navigate(['/home']);
+        // this.router.navigate(['/home']);
+        const returnUrl = this.activatedRouter.snapshot.queryParams['returnUrl'] || '/home';
+        this.router.navigate([returnUrl]);
         this.toastService.show('Login successful!', 'success');
       }),
       // catchError((err) => {
