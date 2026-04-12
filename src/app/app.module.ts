@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -13,6 +13,12 @@ import { CoreModule } from './core/core.module';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { retryInterceptor } from './core/interceptors/retry.interceptor';
 import { loggingInterceptor } from './core/interceptors/logging.interceptor';
+import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { AUTH_FEATURE_KEY } from './store/auth/auth.constants';
+import { authReducer } from './store/auth/auth.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { AuthEffects } from './store/auth/auth.effects';
 
 @NgModule({
   declarations: [
@@ -25,7 +31,10 @@ import { loggingInterceptor } from './core/interceptors/logging.interceptor';
     AppRoutingModule,
     AuthModule,
     SharedUIModule,
-    CoreModule
+    CoreModule,
+    StoreModule.forRoot({ [AUTH_FEATURE_KEY]: authReducer }),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
+    EffectsModule.forRoot([AuthEffects])
   ],
   providers: [provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))],
   // providers: [provideHttpClient()],

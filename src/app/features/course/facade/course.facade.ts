@@ -2,7 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { CourseService } from '../services/course.service';
 import { BehaviorSubject, catchError, defer, finalize, map, Observable, of, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
 import { ToastService } from '../../../shared/ui/service/toast.service';
-import { Course } from '../../../core/models/course';
+import { Course } from '../store/models/course.model';
+import { Store } from '@ngrx/store';
+import { coursesApiActions, coursesPageActions } from '../store/actions/course.action';
 
 @Injectable({
   providedIn: 'any'
@@ -11,6 +13,8 @@ import { Course } from '../../../core/models/course';
 export class CourseFacade {
   toastService = inject(ToastService);
   courseService = inject(CourseService);
+  store = inject(Store<Course[]>)
+
   refreshCourses$ = new Subject<void>();
 
   courses$ =
@@ -93,6 +97,11 @@ export class CourseFacade {
   // }
   uploadFile(file: File) {
     return this.courseService.doUploadFile(file)
+  }
+
+  loadCourses() {
+    this.store.dispatch(coursesPageActions.loadCourses())
+    this.store.dispatch(coursesApiActions.loadSuccess({ courses: 'some course' }))
   }
 
   /*   getCourses() {

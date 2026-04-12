@@ -10,7 +10,7 @@ import { AuthFacade } from '../../features/auth/auth-facade.service';
 export class HeaderComponent {
 
   authfacade = inject(AuthFacade);
-  isLoggedIn$ = this.authfacade.isAuthenticated$;
+  isLoggedIn$ = this.authfacade.isLoggedIn$;
   user$ = this.authfacade.user$;
 
   onLogout() {

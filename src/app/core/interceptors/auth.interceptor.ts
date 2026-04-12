@@ -1,14 +1,33 @@
 import { HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
 import { inject } from '@angular/core';
-import { User } from '../models/user';
-import { catchError, filter, switchMap, take, throwError } from 'rxjs';
+import { catchError, filter, switchMap, take, tap, throwError } from 'rxjs';
+import { AuthActions } from '../../store/auth/auth.actions';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../store/app.state';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // securetoken.googleapis.com
+  // ✅ SKIP refresh API calls
+  if (req.url.includes('securetoken.googleapis.com')) { // adjust this condition
+    return next(req);
+  }
   const authService = inject(AuthService);
+  const store = inject(Store<AppState>);
+
+  const token = localStorage.getItem('token') || ''
+  const refreshToken = localStorage.getItem('refreshToken') || '';
+  const expiresAt = Number(localStorage.getItem('expiresAt'));
+
+  // 🔥 CHECK 1 minute BEFORE REQUEST
+  if (expiresAt && Date.now() > (expiresAt - 60000)) {
+    // Token about to expire → refresh BEFORE request
+    console.log('inside before expires')
+    return handlePreRefresh(req, next, authService, store, refreshToken);
+  }
 
   const modifiedReq = req.clone({
-    params: req.params.set('auth', authService?.user?.token!)
+    params: req.params.set('auth', token ?? '')
   })
 
   return next(modifiedReq).pipe(
@@ -16,30 +35,36 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       console.log('Auth Interceptor : ', err)
       if (err.status === 401) {
         console.log('authInterceptor : ', err)
-        return handle401Error(modifiedReq, next, authService);
+        return handle401Error(modifiedReq, next, authService, store, refreshToken);
       }
 
       return throwError(() => err);
-    })
-  )
-
+    }))
 };
 
-function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService) {
+function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authService: AuthService, store: Store<AppState>, refreshToken: string) {
   if (!authService.isRefreshing) {
     console.log('Inside handle401Error : ')
     authService.isRefreshing = true;
     authService.refreshSubject.next(null);
 
-    return authService.doRefreshTokenInExchangeIdToken().pipe(
+    return authService.doRefreshTokenInExchangeIdToken(refreshToken).pipe(
       switchMap((res: any) => {
         authService.isRefreshing = false;
-
         const newToken = res.id_token;
-        const existingUser = authService.user as User;
-        const user = new User(existingUser.email, existingUser?.localId, newToken, res.expires_in, res.refresh_token)
-        authService.setUser(user)
-        authService.refreshSubject.next(newToken);
+
+        localStorage.setItem('token', newToken);
+        localStorage.setItem('refreshToken', res.refresh_token);
+        localStorage.setItem('expiresIn', res.expires_in);
+
+        const expiresAt = new Date().getTime() + +res.expires_in * 1000;
+        localStorage.setItem('expiresAt', expiresAt.toString())
+
+        store.dispatch(AuthActions.refreshTokenSuccess({
+          token: newToken,
+          refreshToken: res.refresh_token,
+          expiresIn: res.expires_in
+        }));
 
         return next(
           req.clone({
@@ -50,7 +75,8 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
       }),
       catchError(err => {
         authService.isRefreshing = false;
-        authService.doLogout();
+        // authService.doLogout();
+        store.dispatch(AuthActions.logout());
         return throwError(() => err);
       })
     );
@@ -67,6 +93,50 @@ function handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn, authServ
           params: req.params.set('auth', token)
         })
       );
+    })
+  );
+}
+
+function handlePreRefresh(
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  authService: AuthService,
+  store: Store<AppState>,
+  refreshToken: string
+) {
+  console.log('🔥 Pre-refresh START');
+  return authService.doRefreshTokenInExchangeIdToken(refreshToken).pipe(
+    tap(() => console.log('✅ Refresh API called')),
+    switchMap((res: any) => {
+      console.log('✅ Refresh SUCCESS', res);
+
+      const newToken = res.id_token;
+
+      const expiresAt = new Date().getTime() + +res.expires_in * 1000;
+
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('refreshToken', res.refresh_token);
+      localStorage.setItem('expiresAt', expiresAt.toString());
+
+      store.dispatch(AuthActions.refreshTokenSuccess({
+        token: newToken,
+        refreshToken: res.refresh_token,
+        expiresIn: res.expires_in
+      }));
+
+      console.log('➡️ Retrying original request');
+
+      return next(
+        req.clone({
+          params: req.params.set('auth', newToken)
+        })
+      );
+    }),
+
+    catchError(err => {
+      console.log('❌ Refresh FAILED', err);
+      store.dispatch(AuthActions.logout());
+      return throwError(() => err);
     })
   );
 }
@@ -90,6 +160,29 @@ Lazy loading impact on tree shaking
 How RxJS operators affect bundle size
 Real optimization techniques used in production*/
 
+/* 
+Select data from store
+  return store.select(selectToken).pipe(
+    take(1),
+    switchMap(token => {
+      const modifiedReq = req.clone({
+        params: req.params.set('auth', token ?? '')
+      })
+
+      return next(modifiedReq).pipe(
+        catchError(err => {
+          console.log('Auth Interceptor : ', err)
+          if (err.status === 401) {
+            console.log('authInterceptor : ', err)
+            return handle401Error(modifiedReq, next, authService, store);
+          }
+
+          return throwError(() => err);
+        })
+      )
+    })
+  )
+*/
 
 /* 
  return authService.user$.pipe(

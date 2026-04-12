@@ -4,6 +4,10 @@ import { BehaviorSubject, catchError, EMPTY, finalize, tap } from 'rxjs';
 import { UserAuth } from '../../core/models/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from '../../shared/ui/service/toast.service';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../store/app.state';
+import { isLoggedIn, selectError, selectLoading, selectToken, selectUser } from '../../store/auth/auth.selectors';
+import { AuthActions } from '../../store/auth/auth.actions';
 
 @Injectable({
   providedIn: 'root'
@@ -13,63 +17,41 @@ export class AuthFacade {
   activatedRouter = inject(ActivatedRoute);
   authService = inject(AuthService);
   toastService = inject(ToastService);
+  store = inject(Store<AppState>);
 
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
+  // Selectors (streams for UI)
+  user$ = this.store.select(selectUser);
+  token$ = this.store.select(selectToken);
+  loading$ = this.store.select(selectLoading);
+  error$ = this.store.select(selectError);
+  isLoggedIn$ = this.store.select(isLoggedIn);
 
-  // private errorSubject = new BehaviorSubject<AppError | null>(null);
-  // error$ = this.errorSubject.asObservable();
-
-  isAuthenticated$ = this.authService.isAuthenticated$;
-  user$ = this.authService.user$;
+  //Actions (commands)
+  login(credentials: UserAuth) {
+    this.store.dispatch(AuthActions.login(credentials));
+  }
 
   constructor() { }
 
-  login(credentials: UserAuth) {
-    this.loadingSubject.next(true);
-    this.authService.doLogin(credentials).pipe(
-      tap(() => {
-        // this.router.navigate(['/home']);
-        const returnUrl = this.activatedRouter.snapshot.queryParams['returnUrl'] || '/home';
-        this.router.navigate([returnUrl]);
-        this.toastService.show('Login successful!', 'success');
-      }),
-      // catchError((err) => {
-      //   this.handleError(err);
-      //   return EMPTY;
-      // }),
-      finalize(() => this.loadingSubject.next(false))
-    ).subscribe();
-  }
+  // login(credentials: UserAuth) {
+  //   this.loadingSubject.next(true);
+  //   this.authService.doLogin(credentials).pipe(
+  //     tap(() => {
+  //       const returnUrl = this.activatedRouter.snapshot.queryParams['returnUrl'] || '/home';
+  //       this.router.navigate([returnUrl]);
+  //       this.toastService.show('Login successful!', 'success');
+  //     }),
+  //     finalize(() => this.loadingSubject.next(false))
+  //   ).subscribe();
+  // }
 
   logout() {
-    this.authService.doLogout();
-    this.router.navigate(['/login']);
+    this.store.dispatch(AuthActions.logout());
   }
 
   autoLogin() {
-    this.authService.doAutoLogin();
+    // this.authService.doAutoLogin();
+    this.store.dispatch(AuthActions.autoLogin());
   }
 
-  // handleError(err: HttpErrorResponse) {
-  //   let error: AppError = {
-  //     message: 'An unknown error occurred',
-  //     status: 'Failed',
-  //     code: err.error?.error?.message || 'UNKNOWN_ERROR'
-  //   };
-
-  //   switch (err.error.error.message) {
-  //     case 'EMAIL_EXISTS':
-  //       error.message = "This email already exists.";
-  //       break;
-  //     case 'OPERATION_NOT_ALLOWED':
-  //       error.message = 'This operation is not allowed.';
-  //       break;
-  //     case 'INVALID_LOGIN_CREDENTIALS':
-  //       error.message = 'The email ID or Password is not correct.';
-  //       break
-  //   }
-  //   // this.errorSubject.next(error);
-  //   this.toastService.show(error.message, 'error');
-  // }
 }

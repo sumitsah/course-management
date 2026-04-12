@@ -2,9 +2,10 @@ import { Component, inject, Input, input, OnChanges, OnInit } from '@angular/cor
 import { ModalFacade } from '../../../../core/services/modal-facade.service';
 import { Observable } from 'rxjs';
 import { CourseFacade } from '../../facade/course.facade';
-import { Course } from '../../../../core/models/course';
+import { Course } from '../../store/models/course.model';
 import { ConfirmationDialogService } from '../../../../shared/ui/service/confirmation-dialog.service';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'view-course',
@@ -17,6 +18,8 @@ export class ViewCourseComponent implements OnInit {
   modalFacade = inject(ModalFacade);
   courseFacade = inject(CourseFacade);
   router = inject(Router);
+  store = inject(Store<Course[]>)
+
   confirmationDialogService = inject(ConfirmationDialogService);
 
   courses$!: Observable<any>;
@@ -27,7 +30,7 @@ export class ViewCourseComponent implements OnInit {
   ngOnInit() {
     this.courses$ = this.courseFacade.courses$;
     this.loading$ = this.courseFacade.loading$;
-    // this.courses$ = this.courseFacade.getCourses(); 
+    this.courseFacade.loadCourses();
   }
 
   viewForm(mode: 'create' | 'edit', course?: Course) {

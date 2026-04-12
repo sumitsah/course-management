@@ -1,13 +1,23 @@
 import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 import { inject } from '@angular/core';
 import { map, take } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../store/app.state';
+import { isLoggedIn } from '../../store/auth/auth.selectors';
+import { AuthActions } from '../../store/auth/auth.actions';
 
 export const authGuard: CanMatchFn = (route, segments) => {
-  const authService = inject(AuthService);
+  const store = inject(Store<AppState>);
   const router = inject(Router);
   const attemptedUrl = '/' + segments.map(s => s.path).join('/');
-  return authService.isAuthenticated$.pipe(
+
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    store.dispatch(AuthActions.logout())
+    // return  throwError(() => new Error('No refresh token'));
+  }
+
+  return store.select(isLoggedIn).pipe(
     take(1), // VERY IMPORTANT (complete the stream)
     map(isAuthenticated => {
       if (isAuthenticated) {
@@ -22,10 +32,10 @@ export const authGuard: CanMatchFn = (route, segments) => {
 };
 
 export const guestGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
   const router = inject(Router);
+  const store = inject(Store<AppState>);
 
-  return authService.isAuthenticated$.pipe(
+  return store.select(isLoggedIn).pipe(
     take(1),
     map(isAuthenticated => !isAuthenticated ? true : router.createUrlTree(['/home']))
   )

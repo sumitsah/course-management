@@ -14,28 +14,28 @@ export interface AuthResponse {
     registered?: boolean
 }
 
-export class User {
-    constructor(
-        public email: string,
-        public localId: string,
-        private _idToken: string | null,
-        private _expirationDate: Date,
-        private _refreshToken: string
-    ) {
+// export class User {
+//     constructor(
+//         public email: string,
+//         public localId: string,
+//         private _idToken: string | null,
+//         private _expirationDate: Date,
+//         private _refreshToken: string
+//     ) {
 
-    }
-    get token() {
-        if (!this._expirationDate || this._expirationDate < new Date()) {
-            return null;
-        }
-        return this._idToken;
-    }
+//     }
+//     get token() {
+//         if (!this._expirationDate || this._expirationDate < new Date()) {
+//             return null;
+//         }
+//         return this._idToken;
+//     }
 
-    get expirationDate() {
-        return this._expirationDate;
-    }
+//     get expirationDate() {
+//         return this._expirationDate;
+//     }
 
-    get refreshToken() {
-        return this._refreshToken;
-    }
-}
+//     get refreshToken() {
+//         return this._refreshToken;
+//     }
+// }
