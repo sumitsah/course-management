@@ -9,11 +9,15 @@ import { CoreModule } from '../../core/core.module';
 import { CourseDetailsComponent } from './pages/course-details/course-details.component';
 import { StoreModule } from '@ngrx/store';
 import { courseReducer } from './store/reducers/course.reducer';
+import { COURSE_FEATURE_KEY } from './store/course.constant';
+import { EffectsModule } from '@ngrx/effects';
+import { CourseEffects } from './store/effects/course.effects';
 
 @NgModule({
     declarations: [ViewCourseComponent, CourseFormComponent, CourseDetailsComponent],
     imports: [CourseRoutingModule, SharedFormsModule, TitleCasePipe, SharedUIModule, CommonModule, CoreModule,
-        // StoreModule.forFeature('courses', courseReducer)
+        StoreModule.forFeature(COURSE_FEATURE_KEY, courseReducer),
+        EffectsModule.forFeature([CourseEffects])
     ],
     exports: [ViewCourseComponent]
 })

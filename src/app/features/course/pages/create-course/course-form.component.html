@@ -101,5 +101,5 @@
     </div>
 </div>
 
-<loading-spinner *ngIf="loading"></loading-spinner>
+<loading-spinner *ngIf="loading$ | async"></loading-spinner>
 <toast-bar></toast-bar>

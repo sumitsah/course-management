@@ -1,0 +1,1 @@
+export const COURSE_FEATURE_KEY = 'course';

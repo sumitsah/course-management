@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { CourseService } from '../services/course.service';
-import { BehaviorSubject, catchError, defer, finalize, map, Observable, of, shareReplay, startWith, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, finalize, shareReplay, startWith, Subject, switchMap, take, tap } from 'rxjs';
 import { ToastService } from '../../../shared/ui/service/toast.service';
-import { Course } from '../store/models/course.model';
+import { Course, CourseDto } from '../models/course.model';
 import { Store } from '@ngrx/store';
-import { coursesApiActions, coursesPageActions } from '../store/actions/course.action';
+import { selectAllCourses, selectCourseLoaded, selectCourseLoading } from '../store/selectors/course.selectors';
+import { CourseActions } from '../store/actions/course.action';
 
 @Injectable({
   providedIn: 'any'
@@ -17,12 +18,14 @@ export class CourseFacade {
 
   refreshCourses$ = new Subject<void>();
 
-  courses$ =
+  courses$ = this.store.select(selectAllCourses);
+  loading$ = this.store.select(selectCourseLoading);
+
+  courses1$ =
     this.refreshCourses$.pipe(
       startWith(null),
       switchMap(() => {
-        // defer(() => { now defer is not required for loading 
-        this.loadingSubject.next(true); // start loading
+        this.loadingSubject.next(true);
         return this.courseService.doGetCourses().pipe(
           // catchError((err) => {
           //   this.handleError(err);
@@ -37,7 +40,7 @@ export class CourseFacade {
     )
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
+  // loading$ = this.loadingSubject.asObservable();
 
   // private coursesCache$?: Observable<any[]>;
   // Cache machenism not worth it for cross component
@@ -58,19 +61,11 @@ export class CourseFacade {
   //   return this.coursesCache$;
   // }
 
-  createCourse(courseData: any) {
-    // this.loadingSubject.next(true);
-    return this.courseService.doCreateCourse(courseData).pipe(
-      tap(() => this.toastService.show('Course created successfully!', 'success')),
-      // catchError((err) => {
-      //   this.handleError(err);
-      //   return of(null); // Return a default value or rethrow the error as needed
-      // }),
-      // finalize(() => this.loadingSubject.next(false))
-    );
+  createCourse(course: CourseDto, file: File) {
+    this.store.dispatch(CourseActions.createCourse({ course, file }))
   }
 
-  deleteCourse(id: number) {
+  deleteCourse(id: string) {
     this.loadingSubject.next(true);
     return this.courseService.doDeleteCourse(id).pipe(
       tap(() => this.toastService.show('Course Deleted Successfully!', 'success', 2000)),
@@ -92,16 +87,17 @@ export class CourseFacade {
     this.refreshCourses$.next();
   }
 
-  // refreshCourses() {
-  //   this.coursesCache$ = undefined;
-  // }
   uploadFile(file: File) {
     return this.courseService.doUploadFile(file)
   }
 
   loadCourses() {
-    this.store.dispatch(coursesPageActions.loadCourses())
-    this.store.dispatch(coursesApiActions.loadSuccess({ courses: 'some course' }))
+    // It makes sure the shareReplay behaiour caching machenism and avoid uneccessary API call
+    this.store.select(selectCourseLoaded).pipe(take(1)).subscribe((loaded) => {
+      if (!loaded) {
+        this.store.dispatch(CourseActions.loadCourses());
+      }
+    });
   }
 
   /*   getCourses() {

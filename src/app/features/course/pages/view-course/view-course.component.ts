@@ -2,7 +2,7 @@ import { Component, inject, Input, input, OnChanges, OnInit } from '@angular/cor
 import { ModalFacade } from '../../../../core/services/modal-facade.service';
 import { Observable } from 'rxjs';
 import { CourseFacade } from '../../facade/course.facade';
-import { Course } from '../../store/models/course.model';
+import { Course } from '../../models/course.model';
 import { ConfirmationDialogService } from '../../../../shared/ui/service/confirmation-dialog.service';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';

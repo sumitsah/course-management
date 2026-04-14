@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment.development';
-import { map } from 'rxjs';
-import { Course } from '../../../core/models/course';
+import { map, Observable } from 'rxjs';
+import { Course, CourseDto } from '../models/course.model';
 
 @Injectable({
   providedIn: 'any'
@@ -10,24 +10,28 @@ import { Course } from '../../../core/models/course';
 export class CourseService {
   courseApiUrl = environment.firebaseConfig.databaseURL + '/courses.json'
   courseUpdateDeleteApiUrl = environment.firebaseConfig.databaseURL + '/courses/'
-  // ?auth=${this.localStorage._idToken}`;
   uploadImageUrl = environment.cloudinary.baseUrl + environment.cloudinary.cloudName + '/upload';
 
   constructor(private http: HttpClient) { }
 
-  doCreateCourse(courseData: any) {
-    return this.http.post(this.courseApiUrl, courseData);
+  doCreateCourse(courseData: CourseDto): Observable<Course> {
+    return this.http.post<{ name: string }>(this.courseApiUrl, courseData).pipe(
+      map(res => ({
+        id: res.name,
+        ...courseData
+      }))
+    );
   }
 
-  doGetCourses() {
+  doGetCourses(): Observable<Course[]> {
     return this.http
-      .get<Record<string, any> | null>(this.courseApiUrl)
+      .get<Record<string, CourseDto> | null>(this.courseApiUrl)
       .pipe(
         map((courses) =>
           courses
             ? Object.entries(courses).map(([id, value]) => ({
               id,
-              ...(value as object)
+              ...value
             }))
             : []
         )
@@ -42,7 +46,7 @@ export class CourseService {
     return this.http.patch(this.courseUpdateDeleteApiUrl + `${course.id}.json`, course)
   }
 
-  doDeleteCourse(courseId: number) {
+  doDeleteCourse(courseId: string) {
     return this.http.delete(this.courseUpdateDeleteApiUrl + `${courseId}.json`)
   }
 
