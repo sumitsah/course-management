@@ -1,11 +1,10 @@
-import { Component, inject, Input, input, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ModalFacade } from '../../../../core/services/modal-facade.service';
 import { Observable } from 'rxjs';
 import { CourseFacade } from '../../facade/course.facade';
 import { Course } from '../../models/course.model';
 import { ConfirmationDialogService } from '../../../../shared/ui/service/confirmation-dialog.service';
 import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'view-course',
@@ -18,7 +17,6 @@ export class ViewCourseComponent implements OnInit {
   modalFacade = inject(ModalFacade);
   courseFacade = inject(CourseFacade);
   router = inject(Router);
-  store = inject(Store<Course[]>)
 
   confirmationDialogService = inject(ConfirmationDialogService);
 
@@ -60,9 +58,7 @@ export class ViewCourseComponent implements OnInit {
 
     if (!confirmed) return;
 
-    this.courseFacade.deleteCourse(course.id).subscribe({
-      next: () => { this.courseFacade.refreshCourses() }
-    });
+    this.courseFacade.deleteCourse(course.id);
   }
 }
 

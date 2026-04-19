@@ -12,6 +12,13 @@ export const selectAllCourses = createSelector(
   baseSelectors.selectAll
 );
 
+/* Different ways of using this 
+
+export const selectAllCourses = createSelector(
+  selectCourseState,
+  (state) => baseSelectors.selectAll(state)
+); */
+
 export const selectCourseEntities = createSelector(
   selectCourseState,
   baseSelectors.selectEntities
@@ -21,6 +28,10 @@ export const selectCourseIds = createSelector(
   selectCourseState,
   baseSelectors.selectIds
 );
+
+// export const selectCourseById = createSelector(selectCourseState, (state, {id}) => baseSelectors.selectIds(state)[id]);
+
+export const selectCourseById = (id: string) => createSelector(selectCourseEntities, (entities) => entities[id]);
 
 export const selectCourseLoading = createSelector(selectCourseState, (state) => state.loading);
 

@@ -5,7 +5,8 @@ import { CourseActions } from "../actions/course.action";
 import { Course } from "../../models/course.model";
 
 export const adapter = createEntityAdapter<Course>({
-    selectId: (course: Course) => course.id
+    selectId: (course: Course) => course.id,
+    sortComparer: sortByTitle
 });
 
 export const initialState: CoursesState = adapter.getInitialState({
@@ -17,6 +18,7 @@ export const initialState: CoursesState = adapter.getInitialState({
 export const courseReducer = createReducer(
     initialState,
 
+    //-------------- Get Courses ----------------------
     on(CourseActions.loadCourses, (state) => ({ ...state, loading: true })),
 
     on(CourseActions.loadCoursesSuccess, (state, { courses }) =>
@@ -34,7 +36,9 @@ export const courseReducer = createReducer(
         // loaded: true,
         error
     })),
+    // --------------------------------------------------
 
+    //-------------- Create a Course -----------------
     on(CourseActions.createCourse, (state) => ({
         ...state,
         loading: true,
@@ -53,19 +57,55 @@ export const courseReducer = createReducer(
         loading: false,
         error
     })),
+    // -----------------------------------------------
+
+    //------------ Update a course -------------------
+    on(CourseActions.updateCourse, (state) => ({
+        ...state,
+        loading: true
+    })),
 
     on(CourseActions.updateCourseSuccess, (state, { course }) =>
         adapter.updateOne({
             id: course.id,
             changes: course
-        }, state)
+        }, {
+            ...state,
+            loading: false,
+        })
     ),
 
+    on(CourseActions.updateCourseFailure, (state, { error }) => ({
+        ...state,
+        loading: false,
+        error
+    })),
+    // ---------------------------------------------------
+
+    //-------------- Delete a Course---------------
+    on(CourseActions.deleteCourse, (state) => ({
+        ...state,
+        loading: true
+    })),
+
     on(CourseActions.deleteCourseSuccess, (state, { id }) =>
-        adapter.removeOne(id, state)
-    )
+        adapter.removeOne(id, {
+            ...state,
+            loading: false
+        })
+    ),
+
+    on(CourseActions.deleteCourseFailure, (state, { error }) => ({
+        ...state,
+        loading: false,
+        error
+    }))
+    // --------------------------------------------------------------
 )
 
+export function sortByTitle(a: Course, b: Course): number {
+    return a.title.localeCompare(b.title);
+}
 // export const courseReducer = createReducer(
 //     initialState,
 //     on(CourseActions.loadCourses, (state, action) => {

@@ -5,9 +5,10 @@ import { CourseActions } from "../actions/course.action";
 import { catchError, filter, map, of, shareReplay, switchMap, tap, withLatestFrom } from "rxjs";
 import { Store } from "@ngrx/store";
 import { AppState } from "../../../../store/app.state";
-import { CourseDto } from "../../models/course.model";
+import { Course, CourseDto } from "../../models/course.model";
 import { ToastService } from "../../../../shared/ui/service/toast.service";
 import { ModalFacade } from "../../../../core/services/modal-facade.service";
+import { Update } from "@ngrx/entity";
 
 @Injectable()
 
@@ -22,7 +23,7 @@ export class CourseEffects {
         this.actions$.pipe(
             ofType(CourseActions.loadCourses),
 
-            // withLatestFrom(this.store.select(selectAllCourses)),
+            // withLatestFrom(this.store.select(selectAllCourses)), [actions, courses]
             // filter(([_, courses]) => courses.length === 0), //✅ cache check
 
             switchMap(() =>
@@ -32,8 +33,6 @@ export class CourseEffects {
                         of(CourseActions.loadCoursesFailure({ error: err.message }))
                     )
                 )),
-
-            shareReplay(1)
         )
     )
 
@@ -68,15 +67,61 @@ export class CourseEffects {
         )
     );
 
-    createCourseSuccess$ = createEffect(
-        () =>
-            this.actions$.pipe(
-                ofType(CourseActions.createCourseSuccess),
-                tap(() => {
-                    this.toastService.show('Course created!', 'success');
-                    this.modalFacade.closeModal() // or emit event
-                })
-            ),
-        { dispatch: false }
+    createCourseSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(CourseActions.createCourseSuccess),
+            tap(() => {
+                this.toastService.show('Course Created Successfully!', 'success');
+                this.modalFacade.closeModal() // or emit event
+            })
+        ), { dispatch: false }
     );
+
+    updateCourse$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(CourseActions.updateCourse),
+
+            switchMap(({ course }) =>
+                this.courseService.doUpdateCourse(course).pipe(
+                    tap((res) => console.log(res)),
+                    map((res) => {
+                        // const updatedCourse: Update<Course> = {
+                        //     id: res.id,
+                        //     changes: { ...res }
+                        // }
+                        return CourseActions.updateCourseSuccess({ course: res })
+                    }),
+                    catchError(err => of(CourseActions.updateCourseFailure({ error: err.message })))
+                ))
+        )
+    )
+
+    updateCourseSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(CourseActions.updateCourseSuccess),
+            tap(() => {
+                this.toastService.show('Course Updated Successfully!', 'success');
+                this.modalFacade.closeModal()
+            })
+        ), { dispatch: false }
+    );
+
+    deleteCourse$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(CourseActions.deleteCourse),
+            switchMap(({ id }) =>
+                this.courseService.doDeleteCourse(id).pipe(
+                    map(() => CourseActions.deleteCourseSuccess({ id })),
+                    catchError((err) => of(CourseActions.deleteCourseFailure({ error: err.message })))
+                )
+            )
+        )
+    )
+
+    deleteCourseSuccess$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(CourseActions.deleteCourseSuccess),
+            tap(() => this.toastService.show('Course Deleted Successfully!', 'success'))
+        ), { dispatch: false }
+    )
 }

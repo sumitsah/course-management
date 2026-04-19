@@ -71,7 +71,7 @@ export class AuthEffects {
                 if (!user && !token && !refreshToken && !expiresIn) {
                     return AuthActions.logout();
                 }
-                return AuthActions.autoLoginSuccess({ user: { email: user.email, id: user.localId }, token, refreshToken, expiresIn })
+                return AuthActions.autoLoginSuccess({ user: { email: user.email, id: user.id }, token, refreshToken, expiresIn })
             })
         )
     )

@@ -84,10 +84,7 @@ export class CourseFormComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('Form is invalid');
       }
     } else {
-      // this.loading = true;
-      this.courseFacade.updateCourse({ ...this.courseForm.value, id: this.data?.id }).pipe(
-        // finalize(() => this.loading = false)
-      ).subscribe(() => { this.close(); this.courseFacade.refreshCourses() })
+      this.courseFacade.updateCourse({ ...this.courseForm.value, id: this.data?.id });
     }
   }
 

@@ -42,8 +42,8 @@ export class CourseService {
     return this.http.get(environment.firebaseConfig.databaseURL + `/courses/${id}.json`)
   }
 
-  doUpdateCourse(course: Course) {
-    return this.http.patch(this.courseUpdateDeleteApiUrl + `${course.id}.json`, course)
+  doUpdateCourse(course: Course): Observable<Course> {
+    return this.http.patch<Course>(this.courseUpdateDeleteApiUrl + `${course.id}.json`, course)
   }
 
   doDeleteCourse(courseId: string) {

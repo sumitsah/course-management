@@ -4,7 +4,7 @@ import { BehaviorSubject, finalize, shareReplay, startWith, Subject, switchMap, 
 import { ToastService } from '../../../shared/ui/service/toast.service';
 import { Course, CourseDto } from '../models/course.model';
 import { Store } from '@ngrx/store';
-import { selectAllCourses, selectCourseLoaded, selectCourseLoading } from '../store/selectors/course.selectors';
+import { selectAllCourses, selectCourseById, selectCourseEntities, selectCourseLoaded, selectCourseLoading } from '../store/selectors/course.selectors';
 import { CourseActions } from '../store/actions/course.action';
 
 @Injectable({
@@ -66,21 +66,25 @@ export class CourseFacade {
   }
 
   deleteCourse(id: string) {
-    this.loadingSubject.next(true);
-    return this.courseService.doDeleteCourse(id).pipe(
-      tap(() => this.toastService.show('Course Deleted Successfully!', 'success', 2000)),
-      finalize(() => this.loadingSubject.next(false))
-    )
+    this.store.dispatch(CourseActions.deleteCourse({ id }));
   }
 
   updateCourse(course: Course) {
-    return this.courseService.doUpdateCourse(course).pipe(
-      tap(() => this.toastService.show('Course Updated Successfully!', 'success', 2000))
-    )
+    this.store.dispatch(CourseActions.updateCourse({ course }))
   }
 
-  getCourseById(id: any) {
-    return this.courseService.doGetCourseById(id);
+  // getCourseById(id: any) {
+  //   return this.courseService.doGetCourseById(id);
+  // }
+
+  getCourseById(id: string) {
+    this.store.select(selectCourseEntities).pipe(take(1)).subscribe(entities => {
+      if (!entities[id]) {
+        this.store.dispatch(CourseActions.loadCourses()); // or loadCourseById
+      }
+    });
+
+    return this.store.select(selectCourseById(id));
   }
 
   refreshCourses() {
